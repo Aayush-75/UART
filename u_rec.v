@@ -44,16 +44,25 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 rec_busy <= 1;
                 delay <= delay + 1;
-                if(delay <= 7)
+                if(delay == 7)
                 begin
                     rec_dataH[data_index] <= uart_rec_dataH;
                 end
-                if(delay <= 15)
-                    data_index <= data_index + 1;
+                if(delay == 15)
+                    begin
+                        data_index <= data_index + 1;
+                        delay <= 0;
+                    end
                 if(data_index == DATA_WIDTH-1)
                   begin
-                    delay <= 0;
-                    data_index <= 0;
+//                    delay <= 0;
+//                    data_index <= 0;
+                    if(delay==7)
+                        rec_dataH[data_index] <= uart_rec_dataH;
+                    if(delay==15)
+                    begin
+                        delay <= 0;
+                        data_index <= 0;
                     if(PARITY_ENABLE)
                       begin
                         state <= sParity;
@@ -61,6 +70,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     else
                       begin
                         state <= sStop;
+                      end
                       end
                   end
               end
