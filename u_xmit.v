@@ -2,7 +2,8 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
     input baud_clk,sys_rst,
     input xmitH,
     input [DATA_WIDTH-1:0]xmit_dataH,
-    output reg uart_xmit_dataH
+    output reg uart_xmit_dataH,
+    output reg xmit_active,xmit_doneH
   );
   
   reg [2:0]state;
@@ -16,14 +17,16 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
              sParity=3'd3,
              sStop=3'd4;
      
-  always@(posedge baud_clk or posedge sys_rst)
+  always@(posedge baud_clk or negedge sys_rst)
     begin
-      if(sys_rst)
+      if(!sys_rst)
         begin
           uart_xmit_dataH <= 1;
           state <= sIdeal;
           data_index <= 0;
           delay <= 0;
+          xmit_active <= 0;
+          xmit_doneH <= 0;
         end
       else
         begin
@@ -32,12 +35,16 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 if(xmitH)
                   begin
+                    xmit_active <= 0;
                     state <= sStart;
+                    xmit_doneH <= 1;
                     uart_xmit_dataH <= 1;
                   end
               end
             sStart:
               begin
+                xmit_active <= 1;
+                xmit_doneH <= 0;
                 uart_xmit_dataH <= 0;
                 if(delay==15)
                     begin
@@ -98,8 +105,10 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 if(delay==15)
                     begin
+                        xmit_doneH <= 1;
                         state <= sIdeal;
                         delay <= 0;
+                        xmit_activeH <= 0;
                     end
                 else
                     begin
