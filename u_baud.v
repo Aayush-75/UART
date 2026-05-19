@@ -1,4 +1,4 @@
-module u_baud#(parameter SYS_CLK_FREQ = 32, parameter BAUD_RATE = 1, parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)
+module u_baud#(parameter SYS_CLK_FREQ = 10000000, parameter BAUD_RATE = 115200, parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)
   (
     input sys_clk,
     input rst,
