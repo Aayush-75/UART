@@ -8,6 +8,8 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
   reg [1:0]state;
   reg [$clog2(DATA_WIDTH)-1:0]data_index;
   
+  reg [DATA_WIDTH-1:0]isr;
+  
   reg [3:0]delay;
   reg ok=0;
   
@@ -47,7 +49,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                 delay <= delay + 1;
                 if(delay == 7)
                 begin
-                    rec_dataH[data_index] <= uart_rec_dataH;
+                    isr[data_index] <= uart_rec_dataH;
                 end
                 if(delay == 15)
                     begin
@@ -56,10 +58,8 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     end
                 if(data_index == DATA_WIDTH-1)
                   begin
-//                    delay <= 0;
-//                    data_index <= 0;
                     if(delay==7)
-                        rec_dataH[data_index] <= uart_rec_dataH;
+                        isr[data_index] <= uart_rec_dataH;
                     if(delay==15)
                     begin
                         delay <= 0;
@@ -77,7 +77,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               end
             sParity:
               begin
-                if(uart_rec_dataH == ^rec_dataH)
+                if(uart_rec_dataH == ^isr)
                   begin
                     state <= sStop;
                   end
@@ -91,6 +91,12 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                         begin
                             ok<=1;
                             rec_busy <= 0;
+                            rec_dataH <= isr;
+                        end
+                     else
+                        begin
+                            rec_busy <= 0;
+                            ok<=1;
                         end
                 end
                 if(delay == 15 && ok==1)
