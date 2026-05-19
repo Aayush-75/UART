@@ -64,6 +64,7 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     if(delay==15)
                     begin
                         data_index <= 0;
+                        delay <= 0;
                         if(PARITY_ENABLE)
                             begin
                                 state <= sParity;
@@ -85,7 +86,7 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                 if(delay==15)
                     begin
                         state <= sStop;
-                        delay<=0;
+                        delay <= 0;
                     end
                  else
                     begin
@@ -98,7 +99,7 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                 if(delay==15)
                     begin
                         state <= sIdeal;
-                        delay<=0;
+                        delay <= 0;
                     end
                 else
                     begin
