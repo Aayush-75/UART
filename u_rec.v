@@ -18,9 +18,9 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
              sParity=2'd2,
              sStop=2'd3;
           
-  always@(posedge baud_clk or posedge sys_rst)
+  always@(posedge baud_clk or negedge sys_rst)
     begin
-      if(sys_rst)
+      if(!sys_rst)
         begin
           state <= sIdeal;
           data_index <= 0;
