@@ -24,6 +24,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
           data_index <= 0;
           rec_busy <= 0;
           delay <= 0;
+          rec_dataH <= 1;
         end
       else
         begin
@@ -35,7 +36,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     delay <= delay + 1;
                     if(delay==15)
                         begin
-                            state <= sIdeal;
+                            state <= sStart;
                             delay <= 0;
                         end
                   end
@@ -94,8 +95,9 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                 end
                 if(delay == 15 && ok==1)
                     begin
-                        state <= sStop;
+                        state <= sIdeal;
                         ok <= 0;
+                        delay <= 0;
                     end
               end
           endcase
