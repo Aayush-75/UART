@@ -26,7 +26,8 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
           data_index <= 0;
           rec_busy <= 0;
           delay <= 0;
-          rec_dataH <= 1;
+          isr <= 0;
+          ok <= 0;
         end
       else
         begin
