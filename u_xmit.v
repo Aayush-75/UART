@@ -21,12 +21,9 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
     begin
       if(!sys_rst)
         begin
-          uart_xmit_dataH <= 1;
           state <= sIdeal;
           data_index <= 0;
           delay <= 0;
-          xmit_active <= 0;
-          xmit_doneH <= 0;
         end
       else
         begin
@@ -35,17 +32,11 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 if(xmitH)
                   begin
-                    xmit_active <= 0;
                     state <= sStart;
-                    xmit_doneH <= 1;
-                    uart_xmit_dataH <= 1;
                   end
               end
             sStart:
               begin
-                xmit_active <= 1;
-                xmit_doneH <= 0;
-                uart_xmit_dataH <= 0;
                 if(delay==15)
                     begin
                         state <= sData;
@@ -58,7 +49,6 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 if(data_index != (DATA_WIDTH-1))
                   begin
-                    uart_xmit_dataH <= xmit_dataH[data_index];
                     delay <= delay + 1;
                     if(delay==15)
                         begin
@@ -83,7 +73,6 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     end
                     else
                         begin
-                            uart_xmit_dataH <= xmit_dataH[data_index];
                             delay <= delay + 1;
                         end
                   end
@@ -97,7 +86,6 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     end
                  else
                     begin
-                        uart_xmit_dataH <= ^xmit_dataH;
                         delay <= delay + 1;
                     end
               end
@@ -105,19 +93,30 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
               begin
                 if(delay==15)
                     begin
-                        xmit_doneH <= 1;
                         state <= sIdeal;
                         delay <= 0;
-                        xmit_activeH <= 0;
                     end
                 else
                     begin
-                        uart_xmit_dataH <= 1;
                         delay <= delay + 1;
                     end  
               end
           endcase
         end
+    end
+
+    always@(*)
+    begin
+        xmit_active = (state != sIdle);
+        xmit_doneH = (state == sIdle);
+        case(state)
+          sIdle:   uart_xmit_dataH = 1;
+          sStart:  uart_xmit_dataH = 0;
+          sData:   uart_xmit_dataH = xmit_dataH[index];
+          sParity: uart_xmit_dataH = ^xmit_dataH;
+          sStop:   uart_xmit_dataH = 1;
+          default: uart_xmit_dataH = 1;
+        endcase
     end
     
 endmodule
