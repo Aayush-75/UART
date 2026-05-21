@@ -12,9 +12,9 @@ module u_baud#(parameter SYS_CLK_FREQ = 10_000_000, parameter BAUD_RATE = 115200
   localparam remainder = SYS_CLK_FREQ % denominator;
   localparam result = (remainder >= (denominator >> 1)) ? quotient + 1 : quotient;
   
-  always@(posedge sys_clk or posedge rst)
+  always@(posedge sys_clk or negedge rst)
   begin
-    if(rst)
+    if(!rst)
         begin
             baud_clk <= 0;
             count <= result-1;
