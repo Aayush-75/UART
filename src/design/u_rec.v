@@ -2,7 +2,8 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
     input baud_clk,sys_rst,
     input uart_rec_dataH,
     output reg [DATA_WIDTH-1:0]rec_dataH,
-    output reg rec_busy
+    output reg rec_busy,
+    output reg rec_readyH
   );
   
   reg [1:0]state;
@@ -25,6 +26,7 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
           state <= sIdeal;
           data_index <= 0;
           rec_busy <= 0;
+          rec_readyH <= 1;
           delay <= 0;
           isr <= 0;
           ok <= 0;
@@ -40,6 +42,8 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
                     if(delay==15)
                         begin
                             state <= sStart;
+                            rec_busy<=1;
+                            rec_readyH<=0;
                             delay <= 0;
                         end
                   end
@@ -86,23 +90,23 @@ module u_rec#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
             sStop:
               begin
                 delay <= delay + 1;
-                if(delay <=7)
+                if(delay ==7)
                 begin
                     if(uart_rec_dataH)
                         begin
                             ok<=1;
-                            rec_busy <= 0;
                             rec_dataH <= isr;
                         end
                      else
                         begin
-                            rec_busy <= 0;
                             ok<=1;
                         end
                 end
                 if(delay == 15 && ok==1)
                     begin
                         state <= sIdeal;
+                        rec_readyH<=1;
+                        rec_busy <= 0;
                         ok <= 0;
                         delay <= 0;
                     end
