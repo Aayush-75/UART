@@ -107,12 +107,12 @@ module u_xmit#(parameter DATA_WIDTH=8, parameter PARITY_ENABLE=0)(
 
     always@(*)
     begin
-        xmit_active = (state != sIdle);
-        xmit_doneH = (state == sIdle);
+        xmit_active = (state != sIdeal);
+        xmit_doneH = (state == sIdeal);
         case(state)
-          sIdle:   uart_xmit_dataH = 1;
+          sIdeal:   uart_xmit_dataH = 1;
           sStart:  uart_xmit_dataH = 0;
-          sData:   uart_xmit_dataH = xmit_dataH[index];
+          sData:   uart_xmit_dataH = xmit_dataH[data_index];
           sParity: uart_xmit_dataH = ^xmit_dataH;
           sStop:   uart_xmit_dataH = 1;
           default: uart_xmit_dataH = 1;
